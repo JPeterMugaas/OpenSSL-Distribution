@@ -27,31 +27,33 @@
 
 versions=("3.5.0-beta1" "3.4.1" "3.3.3" "3.2.4" "3.1.8" "3.0.16")
 for ver in "${versions[@]}"; do
-  if [ ! -e "openssl-${ver}.tar.gz" ]; then
-    wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${ver}.tar.gz	
-  fi
+  if [ ! -e "openssl-${ver}-${_win}.zip" ]; then
+    if [ ! -e "openssl-${ver}.tar.gz" ]; then
+      wget https://github.com/openssl/openssl/archive/refs/tags/openssl-${ver}.tar.gz	
+    fi
   
-  rm -rf openssl-${ver} 
+    rm -rf openssl-${ver} 
   
 
 # now do shared
-  tar zxf "openssl-${ver}.tar.gz"
-  if [ -d openssl-${ver} ]; then 
-    cd openssl-${ver}
-  else
-    cd openssl-openssl-${ver}
+    tar zxf "openssl-${ver}.tar.gz"
+    if [ -d openssl-${ver} ]; then 
+      cd openssl-${ver}
+    else
+      cd openssl-openssl-${ver}
+    fi
+    /usr/bin/perl Configure ${_mingw} shared
+    make
+    zip "openssl-${ver}-${_win}.zip" *.dll
+    zip "openssl-${ver}-${_win}.zip" LICENSE.txt
+    cd apps
+    zip ../"openssl-${ver}-${_win}.zip" openssl.exe
+    cd ..
+    zip "openssl-${ver}-${_win}.zip" providers/*.dll
+    zip "openssl-${ver}-${_win}.zip" engines/*.dll
+    mv "openssl-${ver}-${_win}.zip" ..
+    cd ..
   fi
-  /usr/bin/perl Configure ${_mingw} shared
-  make
-  zip "openssl-${ver}-${_win}.zip" *.dll
-  zip "openssl-${ver}-${_win}.zip" LICENSE.txt
-  cd apps
-  zip ../"openssl-${ver}-${_win}.zip" openssl.exe
-  cd ..
-  zip "openssl-${ver}-${_win}.zip" providers/*.dll
-  zip "openssl-${ver}-${_win}.zip" engines/*.dll
-  mv "openssl-${ver}-${_win}.zip" ..
-  cd ..
 done
 
 
